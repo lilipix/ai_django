@@ -8,7 +8,7 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, ListView
 
 from cv_analyzer.models import CVAnalysis
-from cv_analyzer.tasks import analyze_cv
+from cv_analyzer.tasks import enqueue_cv_analysis
 
 
 class SignUpView(CreateView):
@@ -52,9 +52,10 @@ class CVAnalysisCreateView(LoginRequiredMixin, View):
             messages.error(request, "Le texte du CV doit contenir au moins 100 caracteres.")
             return render(request, self.template_name, {"cv_text": cv_text}, status=400)
 
-        analysis = CVAnalysis.objects.create(user=request.user, cv_text=cv_text)
+        analysis: CVAnalysis = CVAnalysis.objects.create(user=request.user, cv_text=cv_text)
+        analysis_id = int(analysis.pk)
         try:
-            analyze_cv.delay(analysis.id)
+            enqueue_cv_analysis(analysis_id)
         except Exception:
             analysis.mark_failed("Le lancement de l'analyse en arriere-plan a echoue.")
             messages.error(request, "Impossible de lancer l'analyse pour le moment.")

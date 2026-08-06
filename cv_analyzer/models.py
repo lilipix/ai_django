@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -37,15 +39,15 @@ class CVAnalysis(models.Model):
         verbose_name = "analyse de CV"
         verbose_name_plural = "analyses de CV"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Analyse CV #{self.pk} - {self.user} - {self.status}"
 
-    def mark_processing(self):
+    def mark_processing(self) -> None:
         self.status = self.Status.PROCESSING
         self.error_message = ""
         self.save(update_fields=["status", "error_message", "updated_at"])
 
-    def mark_completed(self, result):
+    def mark_completed(self, result: dict[str, Any]) -> None:
         self.status = self.Status.COMPLETED
         self.result = result
         self.error_message = ""
@@ -60,7 +62,7 @@ class CVAnalysis(models.Model):
             ]
         )
 
-    def mark_failed(self, message):
+    def mark_failed(self, message: str) -> None:
         self.status = self.Status.FAILED
         self.error_message = message
         self.completed_at = timezone.now()

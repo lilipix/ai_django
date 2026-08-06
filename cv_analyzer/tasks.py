@@ -1,4 +1,5 @@
 import logging
+from typing import Any, Protocol, cast
 
 from celery import shared_task
 from django.db import transaction
@@ -9,6 +10,16 @@ from cv_analyzer.services.mistral_service import MistralServiceError, analyze_cv
 from cv_analyzer.validation import CVAnalysisValidationError
 
 logger = logging.getLogger(__name__)
+
+
+class DelayableTask(Protocol):
+    def delay(self, *args: Any, **kwargs: Any) -> Any:
+        pass
+
+
+def enqueue_cv_analysis(analysis_id: int) -> None:
+    task = cast(DelayableTask, analyze_cv)
+    task.delay(analysis_id)
 
 
 @shared_task(bind=True, autoretry_for=(), max_retries=0)
