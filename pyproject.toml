@@ -1,0 +1,31 @@
+[project]
+name = "django-ai"
+version = "0.1.0"
+description = "Application Django intégrant des fonctionnalités d’intelligence artificielle"
+readme = "README.md"
+authors = [
+    { name = "Aurélie", email = "aurelie.demure.ad@gmail.com" }
+]
+requires-python = ">=3.12"
+
+dependencies = [
+    "django>=6.0.7",
+    "django-environ>=0.14.0",
+    "psycopg[binary]>=3.3.4",
+    "gunicorn>=23.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6.0",
+]
+
+[tool.ruff]
+line-length = 100
+extend-exclude = ["django_ai/migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.uv]
+package = false
