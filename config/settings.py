@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
 
-environ.Env.read_env(BASE_DIR / ".env", override=True)
+environ.Env.read_env(BASE_DIR / ".env", overwrite=True)
 
 
 # Quick-start development settings - unsuitable for production
@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_ai"
+    "cv_analyzer.apps.CvAnalyzerConfig",
 ]
 
 MIDDLEWARE = [
@@ -150,3 +150,16 @@ STATIC_URL = env("STATIC_URL", default="/static/")
 STATIC_ROOT = Path(env("STATIC_ROOT", default=str(BASE_DIR / "staticfiles")))
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "cv-analysis-list"
+LOGOUT_REDIRECT_URL = "login"
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379/1")
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = env.int("CELERY_TASK_TIME_LIMIT", default=300)
+
+MISTRAL_API_KEY = env("MISTRAL_API_KEY", default="")
+MISTRAL_MODEL = env("MISTRAL_MODEL", default="mistral-small-latest")
+MISTRAL_TIMEOUT_MS = env.int("MISTRAL_TIMEOUT_MS", default=60000)
