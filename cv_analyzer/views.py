@@ -28,6 +28,7 @@ class CVAnalysisListView(LoginRequiredMixin, ListView):
     template_name = "cv_analyzer/analysis_list.html"
 
     def get_queryset(self):
+        # Chaque utilisateur ne voit que son propre historique.
         return CVAnalysis.objects.filter(user=self.request.user)
 
 
@@ -37,6 +38,7 @@ class CVAnalysisDetailView(LoginRequiredMixin, DetailView):
     template_name = "cv_analyzer/analysis_detail.html"
 
     def get_queryset(self):
+        # Une analyse appartenant a un autre utilisateur renverra une 404.
         return CVAnalysis.objects.filter(user=self.request.user)
 
 
@@ -49,6 +51,7 @@ class CVAnalysisCreateView(LoginRequiredMixin, View):
     def post(self, request):
         cv_text = request.POST.get("cv_text", "").strip()
         if len(cv_text) < 100:
+            # Evite d'envoyer une soumission vide dans la file Celery.
             messages.error(request, "Le texte du CV doit contenir au moins 100 caracteres.")
             return render(request, self.template_name, {"cv_text": cv_text}, status=400)
 

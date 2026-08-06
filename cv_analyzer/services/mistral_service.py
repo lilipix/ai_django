@@ -36,7 +36,7 @@ Analyse le CV ci-dessous selon cette grille sur 100 points :
 Le score_total doit etre exactement la somme des sous-scores.
 Pour chaque sous-score, fournis un score, le maximum attendu et une explication concrete.
 Les recommandations doivent etre actionnables.
-Les sections ameliorees doivent proposer des reformulations sans ajouter de faits absents du CV.
+Les sections a ameliorer doivent proposer des reformulations sans ajouter de faits absents du CV.
 
 CV a analyser :
 {cv_text}
@@ -50,6 +50,7 @@ def analyze_cv_with_mistral(cv_text):
 
     client = Mistral(api_key=api_key)
     try:
+        # Le mode JSON schema force une structure compatible avec la validation Pydantic.
         response = client.chat.complete(
             model=settings.MISTRAL_MODEL,
             messages=[
@@ -69,6 +70,7 @@ def analyze_cv_with_mistral(cv_text):
             timeout_ms=settings.MISTRAL_TIMEOUT_MS,
         )
     except Exception as exc:
+        # Ne loggue ni le CV ni la cle API ; la classe d'erreur suffit au diagnostic.
         logger.warning("Mistral CV analysis request failed: %s", exc.__class__.__name__)
         raise MistralServiceError("L'analyse IA a echoue. Veuillez reessayer plus tard.") from exc
 
@@ -82,6 +84,7 @@ def analyze_cv_with_mistral(cv_text):
 
 
 def _extract_response_content(response):
+    # Le SDK peut renvoyer le contenu sous forme de texte ou de fragments.
     try:
         content = response.choices[0].message.content
     except (AttributeError, IndexError, TypeError) as exc:

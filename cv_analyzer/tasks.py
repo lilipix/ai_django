@@ -18,6 +18,7 @@ class DelayableTask(Protocol):
 
 
 def enqueue_cv_analysis(analysis_id: int) -> None:
+    # Celery ajoute delay dynamiquement ; ce wrapper garde la vue simple et typee.
     task = cast(DelayableTask, analyze_cv)
     task.delay(analysis_id)
 
@@ -26,6 +27,7 @@ def enqueue_cv_analysis(analysis_id: int) -> None:
 def analyze_cv(self, analysis_id):
     try:
         with transaction.atomic():
+            # Verrouille la ligne pendant le passage de PENDING a PROCESSING.
             analysis = CVAnalysis.objects.select_for_update().get(pk=analysis_id)
             if analysis.status != CVAnalysis.Status.PENDING:
                 return
@@ -44,6 +46,7 @@ def analyze_cv(self, analysis_id):
 
 
 def _mark_failed(analysis_id, message):
+    # Ce message est visible par l'utilisateur : il doit rester comprehensible et sain.
     now = timezone.now()
     CVAnalysis.objects.filter(pk=analysis_id).update(
         status=CVAnalysis.Status.FAILED,

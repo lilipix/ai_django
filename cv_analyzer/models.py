@@ -6,6 +6,7 @@ from django.utils import timezone
 
 
 class CVAnalysis(models.Model):
+    # Le statut suit les etapes du traitement asynchrone Celery.
     class Status(models.TextChoices):
         PENDING = "PENDING", "En attente"
         PROCESSING = "PROCESSING", "En cours"
@@ -31,6 +32,7 @@ class CVAnalysis(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
+        # L'historique affiche naturellement les analyses les plus recentes.
         ordering = ["-created_at"]
         indexes = [
             models.Index(fields=["status"]),
@@ -43,6 +45,7 @@ class CVAnalysis(models.Model):
         return f"Analyse CV #{self.pk} - {self.user} - {self.status}"
 
     def mark_processing(self) -> None:
+        # Efface une ancienne erreur si l'analyse est relancee plus tard.
         self.status = self.Status.PROCESSING
         self.error_message = ""
         self.save(update_fields=["status", "error_message", "updated_at"])
