@@ -12,6 +12,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     ports:
       - "8000:8000"
     restart: unless-stopped
@@ -22,6 +24,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5434}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -36,5 +40,12 @@ services:
       start_period: 10s
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
 volumes:
   postgres_data:
+  redis_data:
