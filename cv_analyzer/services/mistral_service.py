@@ -3,13 +3,14 @@ import logging
 
 from django.conf import settings
 from mistralai.client import Mistral
+from mistralai.client.models import JSONSchema, ResponseFormat
 
 from cv_analyzer.validation import CVAnalysisResult, validate_cv_analysis_result
 
 logger = logging.getLogger(__name__)
 
 
-class MistralServiceError(RuntimeError):
+class MistralServiceError(Exception):
     pass
 
 
@@ -57,14 +58,14 @@ def analyze_cv_with_mistral(cv_text):
             ],
             temperature=0.2,
             max_tokens=2500,
-            response_format={
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "cv_analysis_result",
-                    "schema": CVAnalysisResult.model_json_schema(),
-                    "strict": True,
-                },
-            },
+            response_format=ResponseFormat(
+                type="json_schema",
+                json_schema=JSONSchema(
+                    name="cv_analysis_result",
+                    schema_definition=CVAnalysisResult.model_json_schema(),
+                    strict=True,
+                ),
+            ),
             timeout_ms=settings.MISTRAL_TIMEOUT_MS,
         )
     except Exception as exc:
