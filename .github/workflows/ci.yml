@@ -23,17 +23,17 @@ jobs:
         run: |
           docker compose run --rm web uv run ruff check --no-cache .
 
-      - name: Run Unit Tests in Docker
-        env:
-          DJANGO_SECRET_KEY: "ci-secret-key-testing"
-          DJANGO_DEBUG: "True"
-          POSTGRES_DB: "django_ai_db"
-          POSTGRES_USER: "root"
-          POSTGRES_PASSWORD: "root"
-          POSTGRES_HOST: "db"
-          POSTGRES_PORT: "5432"
-          MISTRAL_API_KEY: "mock-key-for-testing"
-          RUFF_CACHE_DIR: "/tmp/.ruff_cache"
+      # - name: Run Unit Tests in Docker
+      #   env:
+      #     DJANGO_SECRET_KEY: "ci-secret-key-testing"
+      #     DJANGO_DEBUG: "True"
+      #     POSTGRES_DB: "django_ai_db"
+      #     POSTGRES_USER: "root"
+      #     POSTGRES_PASSWORD: "root"
+      #     POSTGRES_HOST: "db"
+      #     POSTGRES_PORT: "5432"
+      #     MISTRAL_API_KEY: "mock-key-for-testing"
+      #     RUFF_CACHE_DIR: "/tmp/.ruff_cache"
         # run: |
         #   docker compose run --rm web uv run python manage.py test
 
