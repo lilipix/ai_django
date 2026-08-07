@@ -2,10 +2,11 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, DetailView, ListView
 
-from cv_analyzer.forms import CVAnalysisForm
 from cv_analyzer.models import CVAnalysis
 from cv_analyzer.tasks import enqueue_cv_analysis
 
@@ -41,31 +42,29 @@ class CVAnalysisDetailView(LoginRequiredMixin, DetailView):
         return CVAnalysis.objects.filter(user=self.request.user)
 
 
-class CVAnalysisCreateView(LoginRequiredMixin, CreateView):
-    model = CVAnalysis
-    form_class = CVAnalysisForm
+class CVAnalysisCreateView(LoginRequiredMixin, View):
     template_name = "cv_analyzer/analysis_create.html"
 
-    def form_valid(self, form):
-        analysis: CVAnalysis = form.save(commit=False)
-        analysis.user = self.request.user
-        analysis.save()
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        cv_text = (request.POST.get("cv_text") or "").strip()
+        if len(cv_text) < 100:
+            messages.error(
+                request,
+                "Le texte du CV doit contenir au moins 100 caracteres.",
+            )
+            return render(request, self.template_name, {"cv_text": cv_text}, status=400)
+
+        analysis = CVAnalysis.objects.create(user=request.user, cv_text=cv_text)
         analysis_id = int(analysis.pk)
         try:
             enqueue_cv_analysis(analysis_id)
         except Exception:
             analysis.mark_failed("Le lancement de l'analyse en arriere-plan a echoue.")
-            messages.error(self.request, "Impossible de lancer l'analyse pour le moment.")
+            messages.error(request, "Impossible de lancer l'analyse pour le moment.")
         else:
-            messages.success(self.request, "Analyse lancee en arriere-plan.")
+            messages.success(request, "Analyse lancee en arriere-plan.")
 
-        self.object = analysis
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        # Les erreurs de validation du formulaire sont affichees par le template.
-        messages.error(self.request, "Veuillez corriger les erreurs du formulaire.")
-        return super().form_invalid(form)
-
-    def get_success_url(self):
-        return reverse_lazy("cv-analysis-detail", kwargs={"pk": self.object.pk})
+        return redirect("cv-analysis-detail", pk=analysis.pk)

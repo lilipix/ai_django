@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion - CV Analyzer{% endblock %}
+
+{% block content %}
+  <section class="card" style="max-width: 520px; margin: 0 auto;">
+    <h1 style="margin-top:0;">Connexion</h1>
+    <p class="muted">Accedez a votre historique et lancez de nouvelles analyses.</p>
+
+    <form method="post" class="grid">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <label>
+        Nom d'utilisateur
+        {{ form.username }}
+      </label>
+
+      <label>
+        Mot de passe
+        {{ form.password }}
+      </label>
+
+      <button class="btn btn-primary" type="submit">Se connecter</button>
+    </form>
+
+    <p class="muted" style="margin-bottom:0; margin-top:16px;">
+      Pas de compte ? <a href="{% url 'signup' %}">Creer un compte</a>
+    </p>
+  </section>
+{% endblock %}
