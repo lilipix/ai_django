@@ -296,7 +296,18 @@ Améliorations futures :
 - validation stricte du schéma avec Pydantic ;
 - ajout d'un worker Celery dans Docker Compose ;
 - protection de l'historique utilisateur par filtrage sur `request.user` ;
-- déploiement de l'application sur Render.
+
+### Difficulté rencontrée lors du déploiement
+
+L’interface Django a bien été déployée sur Render, mais pas le traitement asynchrone des analyses. En local, un worker Celery récupère les tâches et appelle l’API Mistral. Sur Render, ce worker nécessite un service payant.
+
+Sans worker, les analyses restent donc au statut PENDING. Une solution envisagée consiste à les exécuter directement dans le service web, mais cela peut ralentir l’application ou provoquer un dépassement du délai d’exécution.
+
+## Captures d'écran
+
+![Capture d'écran 2](cv_analyzer/static/pictures/screen2.png)
+
+![Capture d'écran 1](cv_analyzer/static/pictures/screen1.png)
 
 ## Licence
 
