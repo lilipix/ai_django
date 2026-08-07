@@ -14,6 +14,8 @@ URL de l'application en ligne :
 
 [https://ai-django-cpdi.onrender.com/](https://ai-django-cpdi.onrender.com/)
 
+> **Attention :** lire la section [Difficulté rencontrée lors du déploiement](#difficulté-rencontrée-lors-du-déploiement) avant de tester l'analyse IA en ligne.
+
 ## Présentation du projet
 
 Le projet consiste à créer une application Django permettant à un utilisateur authentifié de coller le texte de son CV, puis de recevoir une analyse structurée produite par une IA.
