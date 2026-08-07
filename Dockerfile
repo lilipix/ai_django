@@ -21,7 +21,7 @@ COPY . .
 
 RUN groupadd --system app \
     && useradd --system --gid app --home-dir /home/app app \
-    && mkdir -p /home/app \
+    && mkdir -p /home/app/.cache/uv \
     && chown -R app:app /app /home/app
 
 USER app
