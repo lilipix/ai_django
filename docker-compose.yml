@@ -49,6 +49,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - UV_NO_CACHE=true
       - UV_PROJECT_ENVIRONMENT=/home/app/.venv
+      - RUFF_CACHE_DIR=/tmp/.ruff_cache
     depends_on:
       db:
         condition: service_healthy
