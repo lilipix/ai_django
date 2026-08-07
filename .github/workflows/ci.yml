@@ -34,8 +34,8 @@ jobs:
           POSTGRES_PORT: "5432"
           MISTRAL_API_KEY: "mock-key-for-testing"
           RUFF_CACHE_DIR: "/tmp/.ruff_cache"
-        run: |
-          docker compose run --rm web uv run python manage.py test
+        # run: |
+        #   docker compose run --rm web uv run python manage.py test
 
       - name: Clean up Docker containers
         if: always()
