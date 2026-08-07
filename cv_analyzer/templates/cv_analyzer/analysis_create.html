@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Nouvelle Analyse - CV Analyzer{% endblock %}
+
+{% block content %}
+  <section class="card reveal reveal-delay-1">
+    <h1 style="margin-top:0;">Analyser un CV</h1>
+    <p class="muted">Collez le texte complet du CV. Le traitement est lance en arriere-plan.</p>
+    <div class="soft-divider"></div>
+
+    <form method="post" action="{% url 'cv-analysis-create' %}" class="grid">
+      {% csrf_token %}
+      <label for="id_cv_text">Texte du CV</label>
+      <textarea id="id_cv_text" name="cv_text" placeholder="Collez ici le contenu de votre CV...">{{ cv_text|default:'' }}</textarea>
+      <p class="muted" style="margin:0; font-size:0.95rem;">Astuce: mettez au moins 100 caracteres et gardez les sections (profil, experiences, competences, formation) pour un meilleur retour IA.</p>
+      <button class="btn btn-primary" type="submit">Lancer l'analyse</button>
+    </form>
+  </section>
+{% endblock %}

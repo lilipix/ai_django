@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Historique - CV Analyzer{% endblock %}
+
+{% block content %}
+  <section class="card reveal reveal-delay-1">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <h1 style="margin:0;">Historique des analyses</h1>
+      <a class="btn btn-primary" href="{% url 'cv-analysis-create' %}">Nouvelle analyse</a>
+    </div>
+    <p class="muted" style="margin:8px 0 0 0;">Suivez le statut des traitements IA et consultez vos resultats precedents.</p>
+    <div class="soft-divider"></div>
+
+    {% if analyses %}
+      <table style="margin-top:16px;">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th>Score</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for analysis in analyses %}
+            <tr>
+              <td>#{{ analysis.id }}</td>
+              <td>{{ analysis.created_at|date:'d/m/Y H:i' }}</td>
+              <td>
+                <span class="status status-{{ analysis.status|lower }}">{{ analysis.status }}</span>
+              </td>
+              <td>
+                {% if analysis.result and analysis.result.score_total %}
+                  <span class="kpi" style="font-size:1.05rem;">{{ analysis.result.score_total }}/100</span>
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td><a class="btn" href="{% url 'cv-analysis-detail' analysis.pk %}">Voir</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted" style="margin-top:14px;">Aucune analyse pour le moment.</p>
+    {% endif %}
+  </section>
+{% endblock %}

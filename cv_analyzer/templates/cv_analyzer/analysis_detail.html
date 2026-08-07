@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail Analyse #{{ analysis.id }} - CV Analyzer{% endblock %}
+
+{% block content %}
+  <section class="card grid reveal reveal-delay-1">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <h1 style="margin:0;">Analyse #{{ analysis.id }}</h1>
+      <span class="status status-{{ analysis.status|lower }}">{{ analysis.status }}</span>
+    </div>
+
+    <p class="muted" style="margin:0;">Creee le {{ analysis.created_at|date:'d/m/Y H:i' }}</p>
+
+    {% if analysis.status == 'PENDING' or analysis.status == 'PROCESSING' %}
+      <div class="msg msg-warning">
+        <span class="loader" aria-hidden="true"></span>
+        Analyse en cours. Cette page se met a jour automatiquement toutes les 5 secondes.
+      </div>
+      <div class="card" style="padding:16px;">
+        <div class="skeleton" style="width: 40%;"></div>
+        <div class="skeleton" style="width: 100%;"></div>
+        <div class="skeleton" style="width: 88%;"></div>
+      </div>
+    {% elif analysis.status == 'FAILED' %}
+      <div class="msg msg-error">
+        L'analyse a echoue.
+        {% if analysis.error_message %}
+          <br>{{ analysis.error_message }}
+        {% endif %}
+      </div>
+    {% elif analysis.status == 'COMPLETED' and analysis.result %}
+      <article class="card reveal reveal-delay-2" style="padding:16px;">
+        <h2 style="margin-top:0;">Score total</h2>
+        <p class="kpi">{{ analysis.result.score_total }}/100</p>
+      </article>
+
+      <article class="card reveal reveal-delay-2" style="padding:16px;">
+        <h2 style="margin-top:0;">Sous-scores</h2>
+        {% if analysis.result.sous_scores %}
+          <table>
+            <thead>
+              <tr>
+                <th>Critere</th>
+                <th>Score</th>
+                <th>Explication</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for key, score_data in analysis.result.sous_scores.items %}
+                <tr>
+                  <td>{{ score_data.label|default:key }}</td>
+                  <td>{{ score_data.score }}/{{ score_data.maximum }}</td>
+                  <td>{{ score_data.explication }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="muted">Aucun sous-score disponible.</p>
+        {% endif %}
+      </article>
+
+      <article class="card reveal reveal-delay-3" style="padding:16px;">
+        <h2 style="margin-top:0;">Points forts</h2>
+        {% if analysis.result.points_forts %}
+          <ul>
+            {% for item in analysis.result.points_forts %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">Aucun point fort fourni.</p>
+        {% endif %}
+      </article>
+
+      <article class="card reveal reveal-delay-3" style="padding:16px;">
+        <h2 style="margin-top:0;">Points faibles</h2>
+        {% if analysis.result.points_faibles %}
+          <ul>
+            {% for item in analysis.result.points_faibles %}
+              <li>
+                {% if item.titre %}<strong>{{ item.titre }}</strong> : {% endif %}{{ item.explication|default:item }}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">Aucun point faible fourni.</p>
+        {% endif %}
+      </article>
+
+      <article class="card reveal reveal-delay-4" style="padding:16px;">
+        <h2 style="margin-top:0;">Recommandations</h2>
+        {% if analysis.result.recommandations %}
+          <ul>
+            {% for item in analysis.result.recommandations %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">Aucune recommandation fournie.</p>
+        {% endif %}
+      </article>
+
+      <article class="card reveal reveal-delay-4" style="padding:16px;">
+        <h2 style="margin-top:0;">Sections a ameliorer</h2>
+        {% if analysis.result.sections_a_ameliorer %}
+          <ul>
+            {% for section, value in analysis.result.sections_a_ameliorer.items %}
+              <li><strong>{{ section }}</strong> : {{ value }}</li>
+            {% endfor %}
+          </ul>
+        {% elif analysis.result.sections_ameliorees %}
+          <ul>
+            {% for section, value in analysis.result.sections_ameliorees.items %}
+              <li><strong>{{ section }}</strong> : {{ value }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">Aucune section amelioree fournie.</p>
+        {% endif %}
+      </article>
+    {% else %}
+      <div class="msg msg-warning">Resultat indisponible pour le moment.</div>
+    {% endif %}
+
+    <div>
+      <a class="btn" href="{% url 'cv-analysis-list' %}">Retour a l'historique</a>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_scripts %}
+  {% if analysis.status == 'PENDING' or analysis.status == 'PROCESSING' %}
+    <script>
+      window.setTimeout(function () {
+        window.location.reload();
+      }, 5000);
+    </script>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CV Analyzer{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f2ec;
+      --panel: #fffdf9;
+      --text: #1f2430;
+      --muted: #5e6574;
+      --brand: #0e7c66;
+      --brand-strong: #085c4b;
+      --accent: #c06a2d;
+      --ok: #1f9d61;
+      --warn: #e3a008;
+      --bad: #d64545;
+      --line: #d9d2c6;
+      --radius: 16px;
+      --shadow: 0 14px 36px rgba(24, 35, 28, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Outfit", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, #d8efe7 0%, transparent 42%),
+        radial-gradient(circle at 90% 0%, #f5dfca 0%, transparent 42%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(980px, 92vw);
+      margin: 0 auto;
+      padding: 24px 0 48px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      font-size: 1.05rem;
+    }
+
+    .links {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    a, button {
+      font: inherit;
+    }
+
+    .btn {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      text-decoration: none;
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: #b8c5d3;
+      box-shadow: 0 7px 16px rgba(19, 32, 26, 0.10);
+    }
+
+    .btn-primary {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      border-color: var(--brand-strong);
+      background: var(--brand-strong);
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .card h1,
+    .card h2,
+    .card h3 {
+      line-height: 1.2;
+      letter-spacing: 0.1px;
+    }
+
+    .kpi {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 1.8rem;
+      font-weight: 500;
+      color: var(--brand-strong);
+      margin: 0;
+    }
+
+    .messages {
+      margin-bottom: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .msg {
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .msg-success { border-color: #b8edd3; background: #ecfff5; }
+    .msg-error { border-color: #f3b1b1; background: #fff0f0; }
+    .msg-warning { border-color: #f5e3a9; background: #fff9e7; }
+
+    .status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--line);
+    }
+
+    .status-pending, .status-processing { background: #fff8df; color: #7a5a00; border-color: #f2df9a; }
+    .status-completed { background: #e9fbf1; color: #0f6e40; border-color: #b9e7cf; }
+    .status-failed { background: #fff0f0; color: #8d2c2c; border-color: #f0b6b6; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      min-height: 220px;
+      padding: 12px;
+      resize: vertical;
+      font: inherit;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .soft-divider {
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, var(--line), transparent);
+      margin: 6px 0;
+    }
+
+    .reveal {
+      animation: riseIn 0.5s ease both;
+    }
+
+    .reveal-delay-1 { animation-delay: 0.05s; }
+    .reveal-delay-2 { animation-delay: 0.1s; }
+    .reveal-delay-3 { animation-delay: 0.15s; }
+    .reveal-delay-4 { animation-delay: 0.2s; }
+
+    @keyframes riseIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .loader {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #f2df9a;
+      border-top-color: var(--brand);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    .skeleton {
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #edf2f7 25%, #f7fafc 45%, #edf2f7 65%);
+      background-size: 220% 100%;
+      animation: shimmer 1.3s ease-in-out infinite;
+    }
+
+    .skeleton + .skeleton {
+      margin-top: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 220% 0; }
+      100% { background-position: -220% 0; }
+    }
+
+    @media (max-width: 760px) {
+      .container { width: min(980px, 95vw); }
+      table, thead, tbody, tr, td, th { display: block; }
+      thead { display: none; }
+      tr { border-bottom: 1px solid var(--line); padding: 8px 0; }
+      td { border-bottom: none; padding: 6px 0; }
+
+      .brand {
+        font-size: 1rem;
+      }
+
+      .kpi {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">CV Analyzer IA</div>
+      <div class="links">
+        {% if user.is_authenticated %}
+          <a class="btn" href="{% url 'cv-analysis-list' %}">Historique</a>
+          <a class="btn btn-primary" href="{% url 'cv-analysis-create' %}">Nouvelle analyse</a>
+          <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button class="btn" type="submit">Se deconnecter</button>
+          </form>
+        {% else %}
+          <a class="btn" href="{% url 'login' %}">Connexion</a>
+          <a class="btn btn-primary" href="{% url 'signup' %}">Inscription</a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="msg {% if message.tags == 'success' %}msg-success{% elif message.tags == 'error' %}msg-error{% else %}msg-warning{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </div>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

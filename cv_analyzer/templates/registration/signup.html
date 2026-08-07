@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscription - CV Analyzer{% endblock %}
+
+{% block content %}
+  <section class="card" style="max-width: 520px; margin: 0 auto;">
+    <h1 style="margin-top:0;">Creer un compte</h1>
+    <p class="muted">Inscrivez-vous pour enregistrer l'historique de vos analyses CV.</p>
+
+    <form method="post" class="grid">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <label>
+        Nom d'utilisateur
+        {{ form.username }}
+      </label>
+
+      <label>
+        Mot de passe
+        {{ form.password1 }}
+      </label>
+
+      <label>
+        Confirmation du mot de passe
+        {{ form.password2 }}
+      </label>
+
+      {% if form.errors %}
+        <div class="msg msg-error">{{ form.errors }}</div>
+      {% endif %}
+
+      <button class="btn btn-primary" type="submit">S'inscrire</button>
+    </form>
+
+    <p class="muted" style="margin-bottom:0; margin-top:16px;">
+      Deja inscrit ? <a href="{% url 'login' %}">Se connecter</a>
+    </p>
+  </section>
+{% endblock %}
