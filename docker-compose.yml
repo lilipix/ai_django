@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Base de données PostgreSQL
   db:
@@ -19,7 +17,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # In-memory database pour le cache ou Celery (optionnel mais prêt)
+  # Redis
   redis:
     image: redis:7-alpine
     container_name: ai_django_redis
@@ -37,12 +35,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ai_django_web
-    # Commande de démarrage par défaut pour le dev/test local
     command: uv run python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
     volumes:
-      - .:/app  # Live-reloading en développement local
+      - .:/app  # Live-reloading
     env_file:
       - path: .env
         required: false
@@ -51,7 +48,7 @@ services:
       - POSTGRES_PORT=5432
       - REDIS_URL=redis://redis:6379/0
       - UV_NO_CACHE=true
-      - UV_SYSTEM_PYTHON=true
+      - UV_PROJECT_ENVIRONMENT=/home/app/.venv
     depends_on:
       db:
         condition: service_healthy
