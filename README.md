@@ -301,11 +301,10 @@ Améliorations futures :
 
 ### Difficulté rencontrée lors du déploiement
 
-L’interface Django a bien été déployée sur Render, mais pas le traitement asynchrone des analyses. En local, un worker Celery récupère les tâches et appelle l’API Mistral. Sur Render, ce worker nécessite un service payant.
+L’interface Django a bien été déployée sur Render, mais pas le traitement asynchrone des analyses. En local, un worker Celery récupère les tâches et appelle l’API Mistral. Sur Render, ce worker nécessite un service payant (voir 
+copies d'écran).
 
 Sans worker, les analyses restent donc au statut PENDING. Une solution envisagée consiste à les exécuter directement dans le service web, mais cela peut ralentir l’application ou provoquer un dépassement du délai d’exécution.
-
-## Captures d'écran
 
 ![Capture d'écran 2](cv_analyzer/static/pictures/screen2.png)
 
