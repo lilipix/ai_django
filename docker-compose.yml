@@ -51,6 +51,7 @@ services:
       - POSTGRES_PORT=5432
       - REDIS_URL=redis://redis:6379/0
       - UV_NO_CACHE=true
+      - UV_SYSTEM_PYTHON=true
     depends_on:
       db:
         condition: service_healthy
