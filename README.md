@@ -1,5 +1,7 @@
 # IA - Analyse de CV avec Django et Mistral AI
 
+![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white) ![Django](https://img.shields.io/badge/Django-6.x-092E20?logo=django&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-7-FF4438?logo=redis&logoColor=white) ![Celery](https://img.shields.io/badge/Celery-5.x-37814A?logo=celery&logoColor=white) ![Mistral AI](<https://img.shields.io/badge/Mistral%20AI-API-FA520F>) ![Pydantic](https://img.shields.io/badge/Pydantic-2.x-E92063?logo=pydantic&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white) ![uv](<https://img.shields.io/badge/uv-package%20manager-261230>) ![Gunicorn](https://img.shields.io/badge/Gunicorn-WSGI-499848?logo=gunicorn&logoColor=white) ![Ruff](https://img.shields.io/badge/Ruff-linter-D7FF64?logo=ruff&logoColor=black)
+
 ## Membres du groupe
 
 - Dina CHAOUKI
@@ -10,9 +12,7 @@
 
 URL de l'application en ligne :
 
-```text
-https://ai-django-cpdi.onrender.com/
-```
+[https://ai-django-cpdi.onrender.com/](https://ai-django-cpdi.onrender.com/)
 
 ## Présentation du projet
 
@@ -203,7 +203,21 @@ Relation :
 
 ## Choix UI/UX et gestion du temps d'inférence
 
-Partie UI détaillée : **À compléter par l'équipe front/templates**.
+Les templates Django mettent en place une interface simple centrée sur le suivi de
+l'analyse IA.
+
+### Design system et tokens
+
+Les variables CSS sont centralisées dans `cv_analyzer/templates/base.html` avec des tokens pour :
+
+- les couleurs principales (`--bg`, `--panel`, `--text`, `--brand`, `--accent`) ;
+- les couleurs d'état (`--ok`, `--warn`, `--bad`) ;
+- les bordures et séparateurs (`--line`) ;
+- les rayons (`--radius`) ;
+- les ombres (`--shadow`) ;
+- la typographie (`Outfit` et `IBM Plex Mono`).
+
+### Retours d'état pendant l'inférence
 
 Côté backend, la latence de l'IA est gérée avec des statuts persistants :
 
@@ -215,8 +229,28 @@ Côté backend, la latence de l'IA est gérée avec des statuts persistants :
 Ces statuts permettent au template de proposer des retours visuels adaptés :
 
 - message d'attente pendant `PENDING` ou `PROCESSING` ;
+- loader circulaire pendant l'analyse ;
+- skeletons de chargement pour suggérer la structure du résultat à venir ;
 - affichage du score et des recommandations en `COMPLETED` ;
 - affichage d'un message d'erreur en `FAILED`.
+
+Dans `analysis_detail.html`, la page se rafraîchit automatiquement toutes les 5 secondes tant que l'analyse est en statut `PENDING` ou `PROCESSING`. Cela permet à l'utilisateur de voir le résultat dès que le worker Celery termine le traitement.
+
+### Affichage réactif
+
+Le choix retenu est un traitement asynchrone complet : l'utilisateur voit un état d'attente, puis la page affiche le résultat structuré lorsque l'analyse passe en `COMPLETED`.
+
+### Gestion des erreurs IA
+
+Les erreurs sont affichées avec des messages explicites :
+
+- erreurs de formulaire lorsque le CV est vide ou trop court ;
+- message d'erreur si le lancement de la tâche Celery échoue ;
+- affichage de `analysis.error_message` lorsque l'analyse passe en statut `FAILED`.
+
+Les dépassements de quota API ne sont pas encore distingués par un message dédié :
+ils sont actuellement traités comme des échecs d'analyse. Une amélioration future
+consiste à détecter spécifiquement ce cas pour afficher un message plus précis.
 
 ## Rapport d'ingénierie et post-mortem
 
@@ -263,3 +297,7 @@ Améliorations futures :
 - ajout d'un worker Celery dans Docker Compose ;
 - protection de l'historique utilisateur par filtrage sur `request.user` ;
 - déploiement de l'application sur Render.
+
+## Licence
+
+Projet réalisé dans un cadre pédagogique.
