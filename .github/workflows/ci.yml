@@ -2,9 +2,9 @@ name: Continuous Integration (Docker Native)
 
 on:
   push:
-    branches: 
+    branches:
   pull_request:
-    branches: 
+    branches:
 
 jobs:
   test:
@@ -38,4 +38,4 @@ jobs:
       - name: Clean up Docker containers
         if: always()
         run: |
-          docker compose down --volumes
+          docker compose down --volumes --remove-orphans
