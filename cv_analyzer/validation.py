@@ -71,7 +71,7 @@ class CVSubScores(BaseModel):
 
 
 class CVAnalysisResult(BaseModel):
-    # Les champs supplementaires sont refuses pour figer le schema attendu.
+    # Les champs supplémentaires sont refusés pour figer le schema attendu.
     model_config = ConfigDict(extra="forbid")
 
     score_total: Annotated[int, Field(ge=0, le=100)]
@@ -97,13 +97,13 @@ class CVAnalysisResult(BaseModel):
         cleaned = {}
         for key, section in value.items():
             if not key.strip() or not section.strip():
-                raise ValueError("Les sections a ameliorer ne doivent pas etre vides.")
+                raise ValueError("Les sections à ameliorer ne doivent pas etre vides.")
             cleaned[key.strip()] = section.strip()
         return cleaned
 
     @model_validator(mode="after")
     def validate_total_score(self):
-        # Le score global est stocke uniquement s'il correspond aux sous-scores.
+        # Le score global est stocké uniquement s'il correspond aux sous-scores.
         if self.score_total != self.sous_scores.total():
             raise ValueError("Le score total doit correspondre a la somme des sous-scores.")
         return self

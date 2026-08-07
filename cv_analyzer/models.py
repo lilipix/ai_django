@@ -45,7 +45,7 @@ class CVAnalysis(models.Model):
         return f"Analyse CV #{self.pk} - {self.user} - {self.status}"
 
     def mark_processing(self) -> None:
-        # Efface une ancienne erreur si l'analyse est relancee plus tard.
+        # Efface une ancienne erreur si l'analyse est relancée plus tard.
         self.status = self.Status.PROCESSING
         self.error_message = ""
         self.save(update_fields=["status", "error_message", "updated_at"])

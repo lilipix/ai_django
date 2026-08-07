@@ -18,11 +18,12 @@ class DelayableTask(Protocol):
 
 
 def enqueue_cv_analysis(analysis_id: int) -> None:
-    # Celery ajoute delay dynamiquement ; ce wrapper garde la vue simple et typee.
+    # Celery ajoute delay dynamiquement ; ce wrapper garde la vue simple et typée.
     task = cast(DelayableTask, analyze_cv)
     task.delay(analysis_id)
 
 
+# transforme la fonction Python en tâche Celery
 @shared_task(bind=True, autoretry_for=(), max_retries=0)
 def analyze_cv(self, analysis_id):
     try:
