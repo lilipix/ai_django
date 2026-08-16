@@ -104,7 +104,96 @@ uv run ruff check .
 uv run python manage.py check
 ```
 
+## CI/CD et tests
+
+### Intégration continue (CI)
+
+Une workflow GitHub Actions est présente dans [.github/workflows/ci.yml](.github/workflows/ci.yml) et se déclenche sur les `push` et les `pull_request`.
+
+Elle exécute actuellement les étapes suivantes :
+
+- installation de Python 3.12 ;
+- installation des dépendances avec `uv sync --frozen --no-dev` ;
+- vérification du style et de la qualité avec `uv run ruff check .`;
+- construction des conteneurs Docker ;
+- exécution des tests Django dans le conteneur web ;
+- le nettoyage des conteneurs.
+
+### Déploiement continu (CD)
+
+L’application est déployée sur Render, avec une URL publique documentée dans la section [Déploiement](#déploiement).
+
+Avant toute mise en production, il est recommandé de valider au minimum :
+
+- `uv run ruff check .` ;
+- `uv run python manage.py check` ;
+- `docker compose run --rm web python manage.py test`.
+
+### Tests automatisés
+
+Le projet contient une suite de 17 tests automatisés utilisant le framework de tests de Django.
+
+#### Éléments testés
+
+Les tests couvrent les principales fonctionnalités de l’application :
+
+- validation du formulaire d’analyse de CV :
+  - suppression des espaces inutiles ;
+  - acceptation d’un CV valide ;
+  - rejet d’un texte de moins de 100 caractères ;
+
+
+- fonctionnement du modèle `CVAnalysis` :
+  - représentation textuelle d’une analyse ;
+  - passage au statut `PROCESSING` ;
+  - enregistrement d’une analyse terminée ;
+  - enregistrement d’un échec ;
+  - stockage du résultat et des dates de fin ;
+
+
+- authentification et sécurité des vues :
+  - création d’un compte et connexion automatique ;
+  - protection de l’historique pour les visiteurs non connectés ;
+  - affichage des seules analyses appartenant à l’utilisateur connecté ;
+  - impossibilité de consulter l’analyse d’un autre utilisateur ;
+
+
+- création d’une analyse :
+  - validation des données ;
+  - création en base avec le statut `PENDING` ;
+  - lancement de la tâche Celery ;
+  - passage au statut `FAILED` si la mise en file d’attente échoue ;
+
+
+- traitement asynchrone :
+  - appel de la tâche avec `Celery.delay()` ;
+  - passage au statut `COMPLETED` après une réponse valide de l’IA ;
+  - passage au statut `FAILED` en cas d’erreur de l’API Mistral.
+
+#### Isolation des services externes
+
+Les appels à Celery et à l’API Mistral sont simulés avec `unittest.mock`.
+
+Les tests peuvent ainsi être exécutés sans :
+
+- envoyer de véritable requête à Mistral AI ;
+- consommer de crédits ou de tokens ;
+- dépendre de la disponibilité de l’API ;
+- lancer réellement une tâche dans le worker Celery.
+
+#### Lancement des tests avec Docker
+
+Lorsque les conteneurs sont démarrés :
+
+```bash
+docker compose exec web uv run python manage.py test
+```
+
 ## Architecture technique et pipeline IA
+
+### Worker et broker
+
+Le worker Celery traite les analyses de CV en arrière-plan pour éviter de bloquer l’interface web pendant l’appel à l’IA. Le broker Redis sert d’intermédiaire entre Django et le worker : Django y dépose la tâche d’analyse, puis le worker la récupère dès qu’il est disponible. Ce découplage rend l’application plus fluide et permet de gérer les traitements longs de façon asynchrone.
 
 ### Flux de données
 
@@ -169,32 +258,30 @@ Le score total est sur 100 points :
 
 ## Modèle ORM
 
-### Entités principales
-
-```text
-User
- |
- | 1,n
- v
-CVAnalysis
-```
-
 ### Diagramme ERD
 
-```text
-+---------------------------+        +-----------------------------+
-| auth.User                 |        | cv_analyzer.CVAnalysis      |
-+---------------------------+        +-----------------------------+
-| id                        |<------ | user_id                     |
-| username                  |        | id                          |
-| email                     |        | cv_text                     |
-| password                  |        | status                      |
-+---------------------------+        | result JSON                 |
-                                     | error_message               |
-                                     | created_at                  |
-                                     | updated_at                  |
-                                     | completed_at                |
-                                     +-----------------------------+
+```mermaid
+erDiagram
+    AUTH_USER ||--o{ CV_ANALYSIS : "possède"
+
+    AUTH_USER {
+        int id PK
+        string username
+        string email
+        string password
+    }
+
+    CV_ANALYSIS {
+        int id PK
+        int user_id FK
+        text cv_text
+        string status
+        json result
+        text error_message
+        datetime created_at
+        datetime updated_at
+        datetime completed_at
+    }
 ```
 
 Relation :
