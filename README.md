@@ -108,16 +108,41 @@ uv run python manage.py check
 
 ### Intégration continue (CI)
 
-Une workflow GitHub Actions est présente dans [.github/workflows/ci.yml](.github/workflows/ci.yml) et se déclenche sur les `push` et les `pull_request`.
+Un workflow GitHub Actions est présente dans [.github/workflows/ci.yml](.github/workflows/ci.yml) et se déclenche automatiquement sur les `push` et les `pull_request`.
 
-Elle exécute actuellement les étapes suivantes :
+Il exécute les étapes suivantes :
 
 - installation de Python 3.12 ;
 - installation des dépendances avec `uv sync --frozen --no-dev` ;
 - vérification du style et de la qualité avec `uv run ruff check .`;
 - construction des conteneurs Docker ;
+- démarrage des services nécessaires, notamment PostgreSQL et Redis ;
 - exécution des tests Django dans le conteneur web ;
-- le nettoyage des conteneurs.
+- arrêt et nettoyage des conteneurs à la fin du workflow.
+
+Le détail des tests réalisés est visible dans la section [Tests automatisés](#tests-automatisés)
+
+### Variables d'environnement
+
+Les variables nécessaires au workflow sont définies dans GitHub Actions. Les valeurs utilisées uniquement pour les tests peuvent être fictives, par exemple pour la base PostgreSQL ou la clé Mistral lorsque les appels à l’API sont simulés avec des mocks.
+
+La redirection HTTPS est désactivée pendant les tests :
+```bash
+SECURE_SSL_REDIRECT=False
+```
+Cela évite que le client de test Django reçoive une redirection 301 avant d’atteindre les vues.
+
+Les données réellement sensibles ne doivent jamais être enregistrées directement dans le dépôt ou dans le fichier YAML. Elles doivent être ajoutées dans :
+
+`Settings`-> `Secrets and variables`-> `Actions`
+
+Elles peuvent ensuite être utilisées dans le workflow de cette manière :
+
+```YAML
+env:
+  MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+```
+Cependant, la véritable clé Mistral n’est pas nécessaire dans la CI car les appels externes sont simulés dans les tests. Utiliser une valeur factice évite de consommer le quota de l’API et rend les tests plus rapides et plus fiables.
 
 ### Déploiement continu (CD)
 
@@ -385,6 +410,9 @@ Améliorations futures :
 - validation stricte du schéma avec Pydantic ;
 - ajout d'un worker Celery dans Docker Compose ;
 - protection de l'historique utilisateur par filtrage sur `request.user` ;
+- simulation des appels à Mistral et Celery dans les tests afin de ne pas dépendre de services externes ;
+- adaptation de la configuration HTTPS pendant les tests pour éviter les redirections `301` ;
+- configuration de l’environnement Docker pour assurer la communication entre Django, PostgreSQL, Redis et Celery.
 
 ### Difficulté rencontrée lors du déploiement
 
