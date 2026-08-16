@@ -115,7 +115,9 @@ Elle exécute actuellement les étapes suivantes :
 - installation de Python 3.12 ;
 - installation des dépendances avec `uv sync --frozen --no-dev` ;
 - vérification du style et de la qualité avec `uv run ruff check .`;
-- tests.
+- construction des conteneurs Docker ;
+- exécution des tests Django dans le conteneur web ;
+- le nettoyage des conteneurs.
 
 ### Déploiement continu (CD)
 
