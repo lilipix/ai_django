@@ -10,7 +10,6 @@ from cv_analyzer.models import CVAnalysis
 from cv_analyzer.services.mistral_service import MistralServiceError
 from cv_analyzer.tasks import analyze_cv, enqueue_cv_analysis
 
-
 User = get_user_model()
 
 
@@ -242,7 +241,8 @@ class CVAnalysisTaskTests(TestCase):
 		self.assertIsNotNone(analysis.completed_at)
 		mock_analyze.assert_called_once_with(analysis.cv_text)
 
-	@patch("cv_analyzer.tasks.analyze_cv_with_mistral", side_effect=MistralServiceError("API indisponible"))
+	@patch("cv_analyzer.tasks.analyze_cv_with_mistral", side_effect=MistralServiceError("API " \
+	"indisponible"))
 	def test_analyze_cv_marks_analysis_failed_when_api_errors(self, mock_analyze):
 		# En cas d'erreur IA, le worker doit enregistrer un statut FAILED lisible.
 		analysis = CVAnalysis.objects.create(user=self.user, cv_text=build_valid_cv_text())

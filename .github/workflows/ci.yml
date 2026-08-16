@@ -42,4 +42,6 @@ jobs:
 
       - name: Arrêter les conteneurs
         if: always()
+        env:
+          POSTGRES_HOST_PORT: 5433
         run: docker compose down --volumes --remove-orphans
