@@ -9,6 +9,7 @@ services:
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,web
+      UV_CACHE_DIR: /tmp/uv-cache-web
     depends_on:
       db:
         condition: service_healthy
