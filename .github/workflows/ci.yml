@@ -31,6 +31,18 @@ jobs:
           uv sync --frozen --no-dev
       - name: Lint
         run: uv run ruff check .
+      - name: Créer le fichier .env pour la CI
+        run: |
+          {
+            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}"
+            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}"
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}"
+            echo "POSTGRES_HOST_PORT=${{ secrets.POSTGRES_HOST_PORT }}"
+            echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}"
+            echo "MISTRAL_API_KEY=${{ secrets.MISTRAL_API_KEY }}"
+            echo "CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}"
+            echo "CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }}"
+          } > .env
       - name: Construire les conteneurs
         run: docker compose build
 
@@ -42,6 +54,4 @@ jobs:
 
       - name: Arrêter les conteneurs
         if: always()
-        env:
-          POSTGRES_HOST_PORT: 5433
         run: docker compose down --volumes --remove-orphans
